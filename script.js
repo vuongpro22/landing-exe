@@ -97,64 +97,35 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 5. App Simulator Interactivity (Interactive Mockup)
-    const videoOverlayBtn = document.getElementById('video-overlay-btn');
-    const simScreen1 = document.getElementById('sim-screen-1');
-    const simScreenChat = document.getElementById('sim-screen-chat');
-    const btnJoinSimMatch = document.getElementById('btn-join-sim-match');
-    const simChatBoxList = document.getElementById('sim-chat-box-list');
+    // 5. Interactive App Tour (Screenshot Switcher)
+    const tourTabs = document.querySelectorAll('.tour-tab');
+    const phoneScreenImg = document.getElementById('phone-screen-img');
     
-    // Clicking overlay "starts" simulator demo
-    if (videoOverlayBtn) {
-        videoOverlayBtn.addEventListener('click', () => {
-            videoOverlayBtn.classList.add('hidden');
-        });
-    }
-    
-    // Simulate joining match -> transition to real-time chat screen
-    if (btnJoinSimMatch && simScreen1 && simScreenChat) {
-        btnJoinSimMatch.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent trigger overlay
-            
-            // Show loading animation on button
-            btnJoinSimMatch.textContent = 'Đang cọc...';
-            btnJoinSimMatch.disabled = true;
-            
-            setTimeout(() => {
-                simScreen1.classList.add('hidden');
-                simScreenChat.classList.remove('hidden');
+    if (tourTabs.length > 0 && phoneScreenImg) {
+        tourTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Ignore if clicked tab is already active
+                if (tab.classList.contains('active')) return;
                 
-                // Animate typing messages in chat room
-                simulateChatConversation();
-            }, 1000);
-        });
-    }
-    
-    function simulateChatConversation() {
-        if (!simChatBoxList) return;
-        
-        const messages = [
-            { sender: 'Đức', text: 'Chào đồng đội mới! Tối nay đúng 19h chiến nha.', delay: 1500 },
-            { sender: 'Bạn', text: 'Nhất trí ạ, mình mang theo 2 vợt nhé.', delay: 3000 },
-            { sender: 'Hệ thống', text: '🏸 Đã tạo mã QR chia tiền sân: 45.000đ/người.', delay: 4500, system: true }
-        ];
-        
-        messages.forEach(msg => {
-            setTimeout(() => {
-                const msgEl = document.createElement('div');
-                if (msg.system) {
-                    msgEl.className = 'chat-msg system';
-                    msgEl.innerHTML = msg.text;
-                } else {
-                    const isSelf = msg.sender === 'Bạn';
-                    msgEl.className = `chat-msg ${isSelf ? 'sent' : 'received'}`;
-                    msgEl.innerHTML = `<strong>${msg.sender}:</strong> ${msg.text}`;
-                }
-                simChatBoxList.appendChild(msgEl);
+                // Remove active class from all tabs
+                tourTabs.forEach(t => t.classList.remove('active'));
                 
-                // Auto scroll down in chat box
-                simChatBoxList.scrollTop = simChatBoxList.scrollHeight;
-            }, msg.delay);
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Get the screenshot image path
+                const newImgSrc = tab.getAttribute('data-image');
+                
+                // Smooth transition: fade out, switch src, fade in
+                phoneScreenImg.style.opacity = '0';
+                
+                setTimeout(() => {
+                    phoneScreenImg.src = newImgSrc;
+                    phoneScreenImg.onload = () => {
+                        phoneScreenImg.style.opacity = '1';
+                    };
+                }, 200);
+            });
         });
     }
 
